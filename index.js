@@ -13,12 +13,12 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + "/public"));
 
 //routers
-app.use("/player", require("./routers/player"));
-app.use("/registration", require("./routers/registration"));
-app.use("/login", require("./routers/login"));
-app.use("/data", require("./routers/getData"));
-app.use("/search", require("./routers/search"));
-app.use("/setdb", require("./routers/setData"));
+app.use("/player", require("./src/routers/player"));
+app.use("/registration", require("./src/routers/registration"));
+app.use("/login", require("./src/routers/login"));
+app.use("/data", require("./src/routers/getData"));
+app.use("/search", require("./src/routers/search"));
+app.use("/setdb", require("./src/routers/setData"));
 
 app.listen(PORT, () => {
   console.log(`Server start on port ${PORT}`);
