@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const { config, checkConfig } = require('./config');
@@ -18,6 +19,8 @@ app.use('/data', require('./routers/getData'));
 app.use('/search', require('./routers/search'));
 app.use('/setdb', require('./routers/setData'));
 app.use('/addUser', require('./routers/addUser'));
+
+app.use(cors());
 
 app.listen(config.PORT, () => {
   // eslint-disable-next-line no-console
