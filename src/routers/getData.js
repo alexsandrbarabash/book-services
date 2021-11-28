@@ -1,16 +1,21 @@
-const express = require("express");
-const router = express.Router();
-const sqlite3 = require("sqlite3").verbose();
-const { host } = require("../../host");
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const {
+  config: { sourceUrl },
+} = require('../config');
+const { AuthMiddleware } = require('../middleware');
 
-router.get("/selection", async (req, res, next) => {
+const router = express.Router();
+
+// get by selectionId
+router.get('/selection', AuthMiddleware('query'), async (req, res, next) => {
   try {
-    const selectionId = req.query.selectionId;
-    const token = req.query.token;
+    const { selectionId } = req.query;
+    const { token } = req.query;
     if (!selectionId) {
       next();
     } else {
-      const db = await new sqlite3.Database("./library.db");
+      const db = await new sqlite3.Database('./db/library.db');
 
       await db.all(
         `SELECT b.id, b.title, ( ? || b.artwork) AS image, b.about, gb.gener, ab.autor, l.isLiked, b.duration, b.chaptersCount
@@ -23,68 +28,68 @@ router.get("/selection", async (req, res, next) => {
          INNER JOIN autors a ON autor_book.autor_id = a.id GROUP BY book_id) ab ON b.id=ab.book_id
          LEFT JOIN (SELECT ub.user_id, ub.book_id, (CASE WHEN ub.book_id == NULL THEN 0 ELSE 1 END) AS isLiked  FROM users
          INNER JOIN user_book ub ON users.id = ub.user_id WHERE ub.user_id=?) l ON l.book_id=b.id;`,
-        [host, selectionId, token],
+        [sourceUrl, selectionId, token],
         (err, row) => {
           res.json(row);
-        }
+        },
       );
 
       db.close();
     }
   } catch (e) {
-    res.status(500).json({ message: "something bad" });
+    res.status(500).json({ message: 'something bad' });
   }
 });
 
-router.get("/selection", async (req, res, next) => {
+router.get('/selection', async (req, res, next) => {
   try {
-    const isBookSelection = req.query.isBookSelection;
+    const { isBookSelection } = req.query;
     if (!isBookSelection) {
       next();
     } else {
-      const db = await new sqlite3.Database("./library.db");
+      const db = await new sqlite3.Database('./db/library.db');
 
       await db.all(
         `SELECT id, title FROM selection s where s.is_selection=0;`,
         [],
         (err, row) => {
           res.json(row);
-        }
+        },
       );
 
       db.close();
     }
   } catch (e) {
-    res.status(500).json({ message: "something bad" });
+    res.status(500).json({ message: 'something bad' });
   }
 });
 
-router.get("/selection", async (req, res) => {
+router.get('/selection', async (req, res) => {
   try {
-    const db = await new sqlite3.Database("./library.db");
+    const db = await new sqlite3.Database('./db/library.db');
 
     await db.all(
       `SELECT id, title,  ( ? || artwork) AS image FROM selection s where s.is_selection=1;`,
-      [host],
+      [sourceUrl],
       (err, row) => {
         res.json(row);
-      }
+      },
     );
 
     db.close();
   } catch (e) {
-    res.status(500).json({ message: "something bad" });
+    res.status(500).json({ message: 'something bad' });
   }
 });
 
-//favorites genres user
-router.get("/genres", async (req, res, next) => {
+// favorites genres user
+router.get('/genres', AuthMiddleware('query'), async (req, res, next) => {
   try {
-    const token = req.query.token;
+    const { token } = req.query;
     if (!token) {
       next();
     } else {
-      const db = await new sqlite3.Database("./library.db");
+      const db = await new sqlite3.Database('./db/library.db');
 
       await db.all(
         `SELECT g.id, g.name FROM geners g
@@ -93,34 +98,34 @@ router.get("/genres", async (req, res, next) => {
         [token],
         (err, row) => {
           res.json(row);
-        }
+        },
       );
 
       db.close();
     }
   } catch (e) {
-    res.status(500).json({ message: "something bad" });
+    res.status(500).json({ message: 'something bad' });
   }
 });
 
-//all genres
-router.get("/genres", async (req, res) => {
+// all genres
+router.get('/genres', async (req, res) => {
   try {
-    const db = await new sqlite3.Database("./library.db");
+    const db = await new sqlite3.Database('./db/library.db');
     await db.all(`SELECT * FROM geners;`, [], (err, row) => {
       res.json(row);
     });
     db.close();
   } catch (e) {
-    res.status(500).json({ message: "something bad" });
+    res.status(500).json({ message: 'something bad' });
   }
 });
 
-//mix user or favorites books users
-router.get("/book", async (req, res) => {
+// mix user or favorites books users
+router.get('/book', AuthMiddleware('query'), async (req, res) => {
   try {
-    const token = req.query.token;
-    const db = await new sqlite3.Database("./library.db");
+    const { token } = req.query;
+    const db = await new sqlite3.Database('./db/library.db');
 
     await db.all(
       `SELECT b.id, b.title, ( ? || b.artwork) AS image, b.about, gb.gener, ab.autor, l.isLiked, b.duration, b.chaptersCount
@@ -131,35 +136,16 @@ router.get("/book", async (req, res) => {
       INNER JOIN autors a ON autor_book.autor_id = a.id GROUP BY book_id) ab ON b.id=ab.book_id
       LEFT JOIN (SELECT ub.user_id, ub.book_id, (CASE WHEN ub.book_id == NULL THEN 0 ELSE 1 END) AS isLiked  FROM users
       INNER JOIN user_book ub ON users.id = ub.user_id WHERE ub.user_id=?) l ON l.book_id=b.id;`,
-      [host, token],
+      [sourceUrl, token],
       (err, row) => {
         res.json(row);
-      }
+      },
     );
 
     db.close();
   } catch (e) {
-    res.status(500).json({ message: "something bad" });
+    res.status(500).json({ message: 'something bad' });
   }
 });
-
-// get user data
-// router.get("/", async (req, res) => {
-//   try {
-//     const token = req.query.token;
-//     if (!token) {
-//       res.status(500).json({ message: "something bad" });
-//     }
-//     //
-//     const db = await new sqlite3.Database("./library.db");
-//     await db.get("SELECT * FROM users WHERE id=?;", [token], (err, row) => {
-//       res.json(row);
-//     });
-//
-//     db.close();
-//   } catch (e) {
-//     res.status(500).json({ message: "something bad" });
-//   }
-// });
 
 module.exports = router;

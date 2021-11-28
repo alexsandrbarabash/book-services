@@ -1,31 +1,36 @@
-const express = require("express");
-const router = express.Router();
-const sqlite3 = require("sqlite3").verbose();
-const {host} = require('../../host');
+/* eslint-disable no-console */
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const {
+  config: { sourceUrl },
+} = require('../config');
 
-router.post("/audio", async (req, res) => {
+const router = express.Router();
+
+router.post('/audio', async (req, res) => {
   let book = {};
   const db = await new sqlite3.Database(
-    "./library.db",
+    './db/library.db',
     sqlite3.OPEN_READONLY,
     (err) => {
       if (err) {
         return console.log(err.message);
       }
-      console.log("Connection to the database");
-    }
+      return console.log('Connection to the database');
+    },
   );
 
   await db.serialize(() => {
     db.get(
       `SELECT b.id, b.title, (? || b.artwork) AS artwork FROM books b WHERE id=?;`,
-      [host, req.body.id],
+      [sourceUrl, req.body.id],
       (err, row) => {
         if (err) {
-          return console.log(err.message);
+          console.log(err.message);
+        } else {
+          book = row;
         }
-        book = row;
-      }
+      },
     );
 
     db.all(
@@ -34,14 +39,14 @@ router.post("/audio", async (req, res) => {
     INNER JOIN (SELECT book_id, autor_id FROM autor_book WHERE book_id=? LIMIT 1) ab ON p.book_id = ab.book_id
     INNER JOIN autors a ON a.id=ab.autor_id
     WHERE p.book_id=? ORDER BY p.numbering;`,
-      [host, host,req.body.id, req.body.id],
+      [sourceUrl, sourceUrl, req.body.id, req.body.id],
       (err, row) => {
         if (err) {
           return console.log(err.message);
         }
         book.query = row;
-        res.json(book);
-      }
+        return res.json(book);
+      },
     );
   });
 
@@ -49,7 +54,7 @@ router.post("/audio", async (req, res) => {
     if (err) {
       return console.log(err.message);
     }
-    console.log("Disconnection to the database");
+    return console.log('Disconnection to the database');
   });
 });
 

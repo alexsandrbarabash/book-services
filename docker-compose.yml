@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  book:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - "./db:/usr/src/app/db"
