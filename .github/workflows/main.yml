@@ -16,7 +16,7 @@ jobs:
       - name: docker build
         run: docker build . -t cfif2001/book-microserver
       - name: docker push
-        run: docker push cfif2001/auth-microserver
+        run: docker push cfif2001/book-microserver
   deploy:
     runs-on: ubuntu-latest
     
