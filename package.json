@@ -2,10 +2,10 @@
   "name": "audiobooksbackend",
   "version": "1.0.0",
   "description": "This repository is a backend for the chetc application. Developed on node js.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js",
-    "server": "nodemon index.js",
+    "start": "node src/index.js",
+    "server": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,14 +19,24 @@
   },
   "homepage": "https://github.com/alexsandrbarabash/AudioBooksBackend#readme",
   "dependencies": {
+    "axios": "^0.24.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.0",
     "express-validator": "^6.8.0",
+    "joi": "^17.4.2",
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "eslint": "^8.3.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.6",
+    "prettier": "^2.5.0"
   }
 }
